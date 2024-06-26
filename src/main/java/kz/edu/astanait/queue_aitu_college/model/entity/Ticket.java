@@ -44,4 +44,6 @@ public class Ticket {
 
     @Column(name = "tableNumber")
     private Integer tableNumber;
+
+    //check
 }
