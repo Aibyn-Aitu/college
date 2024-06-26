@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <base href="/">
+    <title>Find Ticket</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-route.min.js"></script>
+
+    <style>
+        .big-font {
+            font-size: 2em;
+        }
+        .container {
+            max-width: 400px;
+            margin-top: 20px;
+        }
+        .form-control {
+            font-size: 1.5em;
+            height: calc(1.5em + 1rem + 2px);
+        }
+        .btn-lg {
+            font-size: 1.5em;
+            padding: 0.75rem 1.25rem;
+        }
+    </style>
+</head>
+<body ng-app="ticketApp" ng-controller="FindTicketController as findTicketCtrl">
+<div class="container">
+    <h1 class="text-center">Find Ticket</h1>
+    <br/>
+    <br/>
+    <form>
+        <div class="form-group">
+            <input type="text" class="form-control" ng-model="findTicketCtrl.iin" placeholder="Введите ИИН" required/>
+        </div>
+        <button ng-disabled="findTicketCtrl.loading" ng-click="findTicketCtrl.findTicket()" type="button" class="btn btn-primary btn-lg btn-block">FIND</button>
+    </form>
+</div>
+
+<script>
+    var app = angular.module('ticketApp', ['ngRoute']);
+
+    app.controller('FindTicketController', function($http, $window) {
+        var self = this;
+        self.iin = '';
+        self.loading = false;
+
+        self.findTicket = function() {
+            if (!self.iin) {
+                alert("IIN cannot be empty");
+                return;
+            }
+            self.loading = true;
+            $http.get('/api/user/find/iin', { params: { iin: self.iin } })
+                .then(function(response) {
+                    var user = response.data;
+                    if (user) {
+                        $window.localStorage.setItem('userId', user.id);
+                        $window.localStorage.setItem('userFirstname', user.firstname);
+                        $window.localStorage.setItem('userLastname', user.lastname);
+                        $window.localStorage.setItem('ticketNumber', user.ticketNumber); // добавляем ticketNumber в localStorage
+                        $window.location.href = '/ticket-information.html';
+                    } else {
+                        alert("User not found");
+                        self.loading = false;
+                    }
+                }, function(error) {
+                    self.loading = false;
+                    alert("Error finding user: " + error.data.message);
+                });
+        };
+    });
+</script>
+</body>
+</html>
