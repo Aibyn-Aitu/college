@@ -104,5 +104,6 @@ public class DisplayController {
     public String cleanAndCreateTickets() {
         ticketService.cleanAndCreateTickets();
         return null;
+
     }
 }
